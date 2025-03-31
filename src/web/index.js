@@ -37,34 +37,46 @@ init().then(() => {
     mouseY = e.clientY;
     
     if (isMouseDown) {
-      // Calculate grid position
-      const gridX = Math.floor(mouseX / canvas.width * GRID_SIZE);
-      const gridY = Math.floor(mouseY / canvas.height * GRID_SIZE);
-      
-      // Add density at mouse position
-      fluidSim.add_density(gridX, gridY, 100);
-      
-      // Add velocity based on mouse movement
-      const dx = mouseX - lastMouseX;
-      const dy = mouseY - lastMouseY;
-      fluidSim.add_velocity(gridX, gridY, dx * 0.2, dy * 0.2);
-      
-      lastMouseX = mouseX;
-      lastMouseY = mouseY;
+      try {
+        // Calculate grid position
+        const gridX = Math.floor(mouseX / canvas.width * GRID_SIZE);
+        const gridY = Math.floor(mouseY / canvas.height * GRID_SIZE);
+        
+        // Make sure grid coordinates are valid
+        if (gridX >= 0 && gridX < GRID_SIZE && gridY >= 0 && gridY < GRID_SIZE) {
+          // Add density at mouse position (use a smaller value to prevent overflow)
+          fluidSim.add_density(gridX, gridY, 0.5);
+          
+          // Add velocity based on mouse movement (with clamping to reasonable values)
+          const dx = Math.max(-10, Math.min(10, mouseX - lastMouseX));
+          const dy = Math.max(-10, Math.min(10, mouseY - lastMouseY));
+          fluidSim.add_velocity(gridX, gridY, dx * 0.05, dy * 0.05);
+        }
+        
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+      } catch (error) {
+        console.error("Error in mouse interaction:", error);
+      }
     }
   });
 
   // Animation loop
   function animate() {
-    // Clear canvas
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Step simulation
-    fluidSim.step();
-    
-    // Render fluid
-    fluidSim.render(ctx, canvas);
+    try {
+      // Clear canvas
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Step simulation
+      fluidSim.step();
+      
+      // Render fluid
+      fluidSim.render(ctx, canvas);
+    } catch (error) {
+      console.error("Error in animation loop:", error);
+      // Continue the animation loop even if there's an error
+    }
     
     requestAnimationFrame(animate);
   }

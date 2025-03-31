@@ -46,14 +46,20 @@ impl FluidSimulation {
     }
 
     pub fn add_density(&mut self, x: usize, y: usize, amount: f64) {
-        let idx = self.get_index(x, y);
-        self.density[idx] += amount;
+        // Check bounds to prevent invalid memory access
+        if x < self.width && y < self.height {
+            let idx = self.get_index(x, y);
+            self.density[idx] += amount;
+        }
     }
 
     pub fn add_velocity(&mut self, x: usize, y: usize, amount_x: f64, amount_y: f64) {
-        let idx = self.get_index(x, y);
-        self.velocity_x[idx] += amount_x;
-        self.velocity_y[idx] += amount_y;
+        // Check bounds to prevent invalid memory access
+        if x < self.width && y < self.height {
+            let idx = self.get_index(x, y);
+            self.velocity_x[idx] += amount_x;
+            self.velocity_y[idx] += amount_y;
+        }
     }
 
     pub fn render(&self, ctx: &CanvasRenderingContext2d, canvas: &HtmlCanvasElement) {
@@ -63,8 +69,10 @@ impl FluidSimulation {
         for i in 0..self.width {
             for j in 0..self.height {
                 let idx = self.get_index(i, j);
-                let density = self.density[idx];
+                // Ensure density is within a valid range (between 0.0 and 1.0)
+                let density = self.density[idx].max(0.0).min(1.0);
                 
+                // Use a valid CSS color format
                 let color = format!("rgba(0, 0, 255, {})", density);
                 // Using the deprecated method for now since the alternative isn't working
                 ctx.set_fill_style(&JsValue::from_str(&color));
@@ -72,12 +80,16 @@ impl FluidSimulation {
                 let cell_width = width as f64 / self.width as f64;
                 let cell_height = height as f64 / self.height as f64;
                 
-                ctx.fill_rect(
-                    i as f64 * cell_width,
-                    j as f64 * cell_height,
-                    cell_width,
-                    cell_height,
-                );
+                // Make sure all values are valid before drawing
+                if i < self.width && j < self.height && 
+                   cell_width > 0.0 && cell_height > 0.0 {
+                    ctx.fill_rect(
+                        i as f64 * cell_width,
+                        j as f64 * cell_height,
+                        cell_width,
+                        cell_height,
+                    );
+                }
             }
         }
     }

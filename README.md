@@ -43,6 +43,78 @@ npm run build
 
 This will create optimized files in the `dist` directory.
 
+## Adding to a Static Webpage
+
+To add this fluid simulation to any static webpage:
+
+1. Build the project for production:
+   ```
+   npm run build
+   ```
+
+2. Copy the following files from the `dist` directory to your website:
+   - `index.html` (as a reference or directly use it)
+   - `js/index.js`
+   - Any `.wasm` file (usually named with a hash like `27322e9928a5ed56e00d.wasm`)
+
+3. Add the following HTML to your webpage:
+   ```html
+   <canvas id="fluid-canvas"></canvas>
+   <script src="path/to/index.js"></script>
+   ```
+
+4. Make sure your canvas has proper sizing with CSS:
+   ```css
+   #fluid-canvas {
+     width: 100%;
+     height: 400px;
+     background-color: black;
+   }
+   ```
+
+5. If you want to customize the fluid simulation, you can modify:
+   - Canvas size via CSS
+   - Grid resolution, density, and viscosity in `src/web/index.js`
+   - Fluid behavior in `src/lib.rs`
+
+### Alternative: Using Pre-compiled Files
+
+For simple integration without rebuilding:
+
+1. Use the pre-compiled files in the `dist` directory after running `npm run build`
+2. Host these files on any static file server
+3. Link to the HTML file directly or embed the canvas and JavaScript in your existing page
+
+### Deploying to GitHub Pages
+
+To deploy the simulation to GitHub Pages:
+
+1. Build the project:
+   ```
+   npm run build
+   ```
+
+2. Create a GitHub repository for your project
+
+3. Configure your `package.json` with a GitHub Pages deploy script:
+   ```json
+   "scripts": {
+     "deploy": "gh-pages -d dist"
+   }
+   ```
+
+4. Install the gh-pages package:
+   ```
+   npm install --save-dev gh-pages
+   ```
+
+5. Deploy to GitHub Pages:
+   ```
+   npm run deploy
+   ```
+
+6. Access your fluid simulation at `https://your-username.github.io/your-repo-name`
+
 ## How It Works
 
 This simulation implements the Navier-Stokes equations for incompressible fluids in 2D. The implementation is based on Jos Stam's "Real-Time Fluid Dynamics for Games" paper (2003).

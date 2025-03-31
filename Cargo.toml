@@ -1,0 +1,35 @@
+[package]
+name = "water"
+version = "0.1.0"
+edition = "2021"
+description = "Fluid visualization using Navier-Stokes equations with WASM"
+authors = ["Generated with Claude Code"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+wee_alloc = ["dep:wee_alloc"]
+
+[dependencies]
+wasm-bindgen = "0.2.89"
+js-sys = "0.3.66"
+web-sys = { version = "0.3.66", features = [
+  "CanvasRenderingContext2d",
+  "Document",
+  "Element",
+  "HtmlCanvasElement",
+  "Window",
+  "Performance",
+  "console",
+]}
+nalgebra = "0.32.3"
+console_error_panic_hook = { version = "0.1.7", optional = true }
+wee_alloc = { version = "0.4.5", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.39"
+
+[profile.release]
+opt-level = 3

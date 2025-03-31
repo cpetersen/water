@@ -69,11 +69,11 @@ impl FluidSimulation {
         for i in 0..self.width {
             for j in 0..self.height {
                 let idx = self.get_index(i, j);
-                // Ensure density is within a valid range (between 0.0 and 1.0)
-                let density = self.density[idx].max(0.0).min(1.0);
+                // Scale density for more vibrant colors while keeping it in valid range
+                let density = (self.density[idx] * 0.5).max(0.0).min(1.0);
                 
-                // Use a valid CSS color format
-                let color = format!("rgba(0, 0, 255, {})", density);
+                // Use a valid CSS color format with more intense blue
+                let color = format!("rgba(0, 100, 255, {})", density);
                 // Using the deprecated method for now since the alternative isn't working
                 ctx.set_fill_style(&JsValue::from_str(&color));
                 

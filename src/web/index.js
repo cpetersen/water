@@ -44,8 +44,8 @@ init().then(() => {
         
         // Make sure grid coordinates are valid
         if (gridX >= 0 && gridX < GRID_SIZE && gridY >= 0 && gridY < GRID_SIZE) {
-          // Add density at mouse position (use a smaller value to prevent overflow)
-          fluidSim.add_density(gridX, gridY, 0.5);
+          // Add density at mouse position (higher value for more visible color)
+          fluidSim.add_density(gridX, gridY, 5.0);
           
           // Add velocity based on mouse movement (with clamping to reasonable values)
           const dx = Math.max(-10, Math.min(10, mouseX - lastMouseX));

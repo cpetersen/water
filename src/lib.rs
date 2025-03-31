@@ -21,6 +21,13 @@ pub struct FluidSimulation {
 
 #[wasm_bindgen]
 impl FluidSimulation {
+    /// Creates a new fluid simulation with the specified parameters
+    /// 
+    /// * `width` - Width of the simulation grid
+    /// * `height` - Height of the simulation grid
+    /// * `diff` - Diffusion rate (how quickly the fluid spreads)
+    /// * `visc` - Viscosity (how thick/sticky the fluid is)
+    /// * `dt` - Time step for the simulation
     pub fn new(width: usize, height: usize, diff: f64, visc: f64, dt: f64) -> FluidSimulation {
         let size = width * height;
         
@@ -63,17 +70,28 @@ impl FluidSimulation {
     }
 
     pub fn render(&self, ctx: &CanvasRenderingContext2d, canvas: &HtmlCanvasElement) {
+        // Call render_with_color with default blue color
+        self.render_with_color(ctx, canvas, 0, 100, 255, 0.5);
+    }
+    
+    pub fn render_with_color(&self, ctx: &CanvasRenderingContext2d, canvas: &HtmlCanvasElement, 
+                          r: u8, g: u8, b: u8, intensity: f64) {
         let width = canvas.width() as usize;
         let height = canvas.height() as usize;
         
         for i in 0..self.width {
             for j in 0..self.height {
                 let idx = self.get_index(i, j);
-                // Scale density for more vibrant colors while keeping it in valid range
-                let density = (self.density[idx] * 0.5).max(0.0).min(1.0);
+                // Scale density using the provided intensity while keeping it in valid range
+                let density = (self.density[idx] * intensity).max(0.0).min(1.0);
                 
-                // Use a valid CSS color format with more intense blue
-                let color = format!("rgba(0, 100, 255, {})", density);
+                // Skip rendering cells with nearly zero density for performance
+                if density < 0.001 {
+                    continue;
+                }
+                
+                // Use the provided RGB color values
+                let color = format!("rgba({}, {}, {}, {})", r, g, b, density);
                 // Using the deprecated method for now since the alternative isn't working
                 ctx.set_fill_style(&JsValue::from_str(&color));
                 
@@ -94,6 +112,58 @@ impl FluidSimulation {
         }
     }
 
+    /// Apply decay to the density and velocity fields
+    /// 
+    /// * `density_decay` - Multiplier for density (1.0 = no decay, 0.9 = 10% decay per step)
+    /// * `velocity_decay` - Multiplier for velocity (1.0 = no decay, 0.9 = 10% decay per step)
+    pub fn apply_decay(&mut self, density_decay: f64, velocity_decay: f64) {
+        // Only process if decay is actually happening
+        if density_decay < 1.0 || velocity_decay < 1.0 {
+            for i in 0..self.width * self.height {
+                // Apply density decay
+                if density_decay < 1.0 {
+                    self.density[i] *= density_decay;
+                }
+                
+                // Apply velocity decay
+                if velocity_decay < 1.0 {
+                    self.velocity_x[i] *= velocity_decay;
+                    self.velocity_y[i] *= velocity_decay;
+                }
+            }
+        }
+    }
+    
+    /// Get the x component of velocity at a specific grid position
+    pub fn get_velocity_x(&self, x: usize, y: usize) -> f64 {
+        if x < self.width && y < self.height {
+            let idx = self.get_index(x, y);
+            self.velocity_x[idx]
+        } else {
+            0.0
+        }
+    }
+    
+    /// Get the y component of velocity at a specific grid position
+    pub fn get_velocity_y(&self, x: usize, y: usize) -> f64 {
+        if x < self.width && y < self.height {
+            let idx = self.get_index(x, y);
+            self.velocity_y[idx]
+        } else {
+            0.0
+        }
+    }
+    
+    /// Get the density at a specific grid position
+    pub fn get_density(&self, x: usize, y: usize) -> f64 {
+        if x < self.width && y < self.height {
+            let idx = self.get_index(x, y);
+            self.density[idx]
+        } else {
+            0.0
+        }
+    }
+    
     fn get_index(&self, x: usize, y: usize) -> usize {
         x + y * self.width
     }

@@ -72,10 +72,37 @@ To add this fluid simulation to any static webpage:
    }
    ```
 
-5. If you want to customize the fluid simulation, you can modify:
-   - Canvas size via CSS
-   - Grid resolution, density, and viscosity in `src/web/index.js`
-   - Fluid behavior in `src/lib.rs`
+5. If you want to customize the fluid simulation, you can modify the `CONFIG` object in `src/web/index.js`:
+
+   ```javascript
+   const CONFIG = {
+     // Grid and simulation settings
+     gridSize: 100,               // Grid resolution (higher values = more detailed but slower)
+     diffusion: 0.0001,           // How quickly the fluid diffuses (higher = more diffusion)
+     viscosity: 0.0000001,        // Fluid thickness (higher = more viscous/thicker)
+     timeStep: 0.2,               // Simulation time step (higher = faster but less stable)
+     
+     // Interaction settings
+     densityAmount: 5.0,          // Amount of density added per interaction (higher = more visible)
+     velocityScale: 0.05,         // How strongly mouse movements affect the fluid
+     
+     // Fluid decay
+     densityDecay: 0.999,         // Rate at which density fades (1.0 = no decay, 0.9 = fast decay)
+     velocityDecay: 0.99,         // Rate at which velocity slows down
+     
+     // Visual settings
+     fluidColor: [0, 100, 255],   // RGB values for fluid color
+     backgroundColor: [0, 0, 0],  // RGB values for background
+     colorIntensity: 0.5,         // Intensity multiplier for colors
+     
+     // Effect settings
+     responsive: true,            // Whether to resize with the window
+     showVelocity: false,         // Show velocity vectors (for debugging)
+     
+     // Performance settings
+     frameSkip: 0                 // Skip N frames between calculations (0 = calculate every frame)
+   };
+   ```
 
 ### Alternative: Using Pre-compiled Files
 
